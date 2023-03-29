@@ -11,6 +11,7 @@ func Start() {
 	configuration.Init()
 	port := viper.Get("server.port")
 	fmt.Println("start server ", port)
+	WebServer()
 }
 
 func Clean() {
