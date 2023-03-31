@@ -2,7 +2,7 @@ package model
 
 type QuestionEntity struct {
 	Id           string `json:"_id"`
-	Lanugage     string `json:"lanugage"`
+	Language     string `json:"language"`
 	KeyWord      string `json:"keyWord"`
 	QuestionDesc string `json:"questionDesc"`
 	AnswerDesc   string `json:"answerDesc"`

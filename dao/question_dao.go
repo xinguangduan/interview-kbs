@@ -58,6 +58,7 @@ func Insert(ctx context.Context) {
 
 	record := model.QuestionEntity{
 		QuestionDesc: "how to use mongodb",
+		Language:     "go",
 		AnswerDesc:   "search it in internet",
 		CreateDate:   time.Now().String(),
 		CreateBy:     "zhangsan",
