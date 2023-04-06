@@ -10,40 +10,26 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lightsoft/interview-knowledge-base/api"
+	"github.com/lightsoft/interview-knowledge-base/router"
 	"github.com/spf13/viper"
 )
 
-func WebServer() {
+func StartWebServer() {
 
-	router := gin.Default()
-	// v1
+	r := gin.Default()
 
-	v1 := router.Group("/api/v1")
-	{
-		v1.GET("/questions", api.QueryQuestion)
-		v1.GET("/questions/:id", api.SearchQuestion)
-		v1.POST("/questions/add", api.CreateQuestion)
-		v1.PUT("/questions", api.UpdateQuestion)
-		v1.DELETE("/questions", api.DeleteQuestion)
-	}
-
-	// Simple group: v2
-	v2 := router.Group("/api/v2")
-	{
-		v2.GET("/questions", api.QueryQuestion)
-		v2.GET("/questions/:id", api.SearchQuestion)
-		v2.POST("/questions", api.CreateQuestion)
-		v2.PUT("/questions", api.UpdateQuestion)
-		v2.DELETE("/questions", api.DeleteQuestion)
-	}
+	// router group
+	router.ConfigRouter(r)
 
 	srv := &http.Server{
 		Addr:         ":" + viper.GetString("server.port"),
-		Handler:      router,
+		Handler:      r,
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+
+	fmt.Printf("start server, %v, %v, %v", srv.Addr, srv.ReadTimeout, srv.WriteTimeout)
+
 	go func() {
 		// 监听请求
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -61,13 +47,9 @@ func WebServer() {
 	if err := srv.Shutdown(ctx); err != nil {
 		fmt.Println("Server Shutdown:", err)
 	}
-	select {
-	case <-ctx.Done():
-	}
+
+	<-ctx.Done()
 	fmt.Println("Server exiting")
 
 	// router.Run(":" + viper.GetString("server.port"))
-}
-func question(c *gin.Context) {
-	c.String(http.StatusOK, "Hello World")
 }

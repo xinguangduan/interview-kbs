@@ -4,14 +4,13 @@ import (
 	"fmt"
 
 	"github.com/lightsoft/interview-knowledge-base/configuration"
-	"github.com/spf13/viper"
+	"github.com/lightsoft/interview-knowledge-base/dao"
 )
 
 func Start() {
 	configuration.Init()
-	port := viper.Get("server.port")
-	fmt.Println("start server ", port)
-	WebServer()
+	dao.InitDatabase()
+	StartWebServer()
 }
 
 func Clean() {

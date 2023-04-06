@@ -9,3 +9,7 @@ func main() {
 
 	cmd.Start()
 }
+
+func CheckError(err error) {
+	panic("unimplemented")
+}

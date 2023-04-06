@@ -1,5 +1,4 @@
 server:
   port: 7878
 db:
-  path: localhost
-  port: 27017
+  path: mongodb://localhost:27017
