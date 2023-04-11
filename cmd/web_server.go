@@ -10,14 +10,39 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lightsoft/interview-knowledge-base/configuration"
+	"github.com/lightsoft/interview-knowledge-base/global"
+	"github.com/lightsoft/interview-knowledge-base/middleware"
 	"github.com/lightsoft/interview-knowledge-base/router"
+	"github.com/lightsoft/interview-knowledge-base/utils"
 	"github.com/spf13/viper"
 )
 
 func StartWebServer() {
-
+	var initErr error
 	r := gin.Default()
 
+	// ===============================================================================
+	// = 初始化日志组件
+	global.Logger = configuration.InitLogger()
+	// ===============================================================================
+	// = 初始化Redis连接
+	rdClient, err := configuration.InitRedis()
+	global.RedisClient = rdClient
+	if err != nil {
+		initErr = utils.AppendError(initErr, err)
+	}
+
+	// ===============================================================================
+	// = 初始化过程中, 遇到错误的最终处理
+	if initErr != nil {
+		if global.Logger != nil {
+			global.Logger.Error(initErr.Error())
+		}
+		panic(initErr.Error())
+	}
+
+	r.Use(middleware.Cors())
 	// router group
 	router.ConfigRouter(r)
 
@@ -28,7 +53,7 @@ func StartWebServer() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	fmt.Printf("start server, %v, %v, %v", srv.Addr, srv.ReadTimeout, srv.WriteTimeout)
+	fmt.Printf("start server, %v, %v, %v \n", srv.Addr, srv.ReadTimeout, srv.WriteTimeout)
 
 	go func() {
 		// 监听请求

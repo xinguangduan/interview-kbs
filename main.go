@@ -6,7 +6,6 @@ import (
 
 func main() {
 	defer cmd.Clean()
-
 	cmd.Start()
 }
 

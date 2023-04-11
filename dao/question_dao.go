@@ -7,14 +7,15 @@ import (
 	"github.com/lightsoft/interview-knowledge-base/global"
 	"github.com/lightsoft/interview-knowledge-base/model"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// var opt *options.ClientOptions
-var collection *mongo.Collection
+type QuestionDao struct {
+}
 
-func Insert(ctx context.Context, questions []model.QuestionEntity) {
+// var opt *options.ClientOptions
+// var collection *mongo.Collection
+
+func (m *QuestionDao) Insert(ctx context.Context, questions []model.QuestionEntity) {
 
 	// 插入记录，_id默认生成
 	insertResult, err := DB.Collection(global.COLLECTION_QUESTION_INFO).InsertMany(context.TODO(), questions)
@@ -22,94 +23,115 @@ func Insert(ctx context.Context, questions []model.QuestionEntity) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("插入记录的ID：", insertResult)
+	global.Logger.Info("插入记录的ID：", insertResult.InsertedIDs)
 }
-func InsertOne(ctx context.Context, question model.QuestionEntity) {
+func (m *QuestionDao) InsertOne(ctx context.Context, question model.QuestionEntity) error {
 
 	// 插入记录，_id默认生成
 	insertResult, err := DB.Collection(global.COLLECTION_QUESTION_INFO).InsertOne(context.TODO(), question)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil
 	}
-	fmt.Println("插入记录的ID：", insertResult)
+	global.Logger.Info("插入记录的ID：", insertResult.InsertedID)
+	return err
 }
-func Update(ctx context.Context) {
-	filter := bson.D{{"city", "北京"}}
-	update := bson.D{{"$inc", bson.D{{"score", 5}}}} //inc为increase
-	res, err := collection.UpdateMany(ctx, filter, update)
-	CheckError(err)
-	fmt.Printf("update %d doc \n", res.ModifiedCount)
+func (m *QuestionDao) UpdateQuestion(question model.QuestionEntity) {
+	// filter := bson.D{{"city", "北京"}}
+	// update := bson.D{{"$inc", bson.D{{"score", 5}}}} //inc为increase
+	//res, err := collection.UpdateMany(ctx, filter, update)
+	//CheckError(err)
+	// fmt.Printf("update %d doc \n", res.ModifiedCount)
 }
 
-func QueryAll(ctx context.Context) {
-	sort := bson.D{{"name", 1}} //1为升序
-	filter := bson.D{{"score", bson.D{{"$gt", 3}}}}
-	findOption := options.Find()
-	findOption.SetSort(sort)
-	findOption.SetLimit(10)
-	findOption.SetSkip(1)
-	cursor, err := collection.Find(ctx, filter, findOption)
-	CheckError(err)
-	for cursor.Next(ctx) {
-		var doc model.QuestionEntity
-		err := cursor.Decode(&doc)
-		CheckError(err)
-		fmt.Printf("%s %d %d\n", doc.Id, doc.QuestionDesc, doc.AnswerDesc)
-	}
-}
-func Query(ctx context.Context) {
-	sort := bson.D{{"QuestionDesc", 1}} //1为升序
+func (m *QuestionDao) QueryAll(ctx context.Context) {
+	// sort := bson.D{{"name", 0}} //1为升序
 	// filter := bson.D{{"score", bson.D{{"$gt", 3}}}}
-	filter := bson.D{}
-	findOption := options.Find()
-	findOption.SetSort(sort)
+	// findOption := options.Find()
+	// findOption.SetSort(sort)
+	// findOption.SetLimit(10)
+	// findOption.SetSkip(1)
+	// cursor, err := collection.Find(ctx, filter, findOption)
+	// CheckError(err)
+	// for cursor.Next(ctx) {
+	// 	var doc model.QuestionEntity
+	// 	err := cursor.Decode(&doc)
+	// 	CheckError(err)
+	// 	fmt.Printf("%s %d %d\n", doc.Uid, doc.QuestionDesc, doc.AnswerDesc)
+	// }
+}
+func (m *QuestionDao) Query(ctx context.Context) {
+	//sort := bson.D{{"QuestionDesc", 1}} //1为升序
+	// filter := bson.D{{"score", bson.D{{"$gt", 3}}}}
+	// filter := bson.D{}
+	// findOption := options.Find()
+	//findOption.SetSort(sort)
 	//findOption.SetLimit(10)
 	//findOption.SetSkip(1)
-	if collection == nil {
-		client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017"))
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		// 选择数据库my_db
-		database := client.Database(global.DB_NAME)
-		// 选择表my_collection
-		collection = database.Collection(global.COLLECTION_QUESTION_INFO)
-	}
-	cursor, err := collection.Find(ctx, filter, findOption)
-	CheckError(err)
-	for cursor.Next(ctx) {
-		var doc model.QuestionEntity
-		err := cursor.Decode(&doc)
-		CheckError(err)
-		fmt.Printf("%s %d %d\n", doc.Id, doc.QuestionDesc, doc.AnswerDesc)
-	}
+	// if collection == nil {
+	// 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017"))
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		return
+	// 	}
+	// 	// 选择数据库my_db
+	// 	database := client.Database(global.DB_NAME)
+	// 	// 选择表my_collection
+	// 	collection = database.Collection(global.COLLECTION_QUESTION_INFO)
+	// }
+	// cursor, err := collection.Find(ctx, filter, findOption)
+	// CheckError(err)
+	// for cursor.Next(ctx) {
+	// 	var doc model.QuestionEntity
+	// 	err := cursor.Decode(&doc)
+	// 	CheckError(err)
+	// 	fmt.Printf("%s %d %d\n", doc.Uid, doc.QuestionDesc, doc.AnswerDesc)
+	// }
 }
+
+func (m *QuestionDao) GetQuestionByUid(uid string) model.QuestionEntity {
+	var question model.QuestionEntity
+	DB.Collection(global.COLLECTION_QUESTION_INFO).Find(context.TODO(), nil).One(&question)
+	return question
+}
+
 func CheckError(err error) {
 	panic("Get Error " + err.Error())
 }
 
-func Delete(ctx context.Context, id string) {
-	filter := bson.D{{"_id", id}}
-	res, err := collection.DeleteMany(ctx, filter)
+func (m *QuestionDao) DeleteQuestionByUid(uid string) {
+	filter := bson.D{{"uid", uid}}
+	collection := DB.Collection(global.COLLECTION_QUESTION_INFO)
+	err := collection.Remove(context.TODO(), filter)
 	CheckError(err)
-	fmt.Printf("delete %d doc \n", res.DeletedCount)
 }
-func DeleteAll(ctx context.Context) {
+func (m *QuestionDao) DeleteAll(ctx context.Context) {
 	coll := DB.Collection(global.COLLECTION_QUESTION_INFO)
 	coll.RemoveAll(ctx, bson.D{{}})
 }
 
-func QueryQuestions(ctx context.Context) []model.QuestionEntity {
+func (m *QuestionDao) QueryQuestions(ctx context.Context) []model.QuestionEntity {
 
-	coll := DB.Collection(global.COLLECTION_QUESTION_INFO)
+	collection := DB.Collection(global.COLLECTION_QUESTION_INFO)
 	batch := []model.QuestionEntity{}
+	filter := bson.D{{}}
+	//findOption.SetSkip(1)
+	//cursor, err := collection.Find(ctx, filter, findOption)
+	// err := coll.Find(ctx, filter, findOption).All(&batch)
 
-	err := coll.Find(ctx, bson.D{{}}).Sort("language").Limit(100).All(&batch)
+	err := collection.Find(ctx, filter).Sort("-createDate").All(&batch)
+	// err := collection.Find(ctx, filter).Sort("-createDate", "-updateDate").All(&batch)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 	return batch
+}
+
+func (m *QuestionDao) GetQuestionList() ([]model.QuestionEntity, int, error) {
+	collection := DB.Collection(global.COLLECTION_QUESTION_INFO)
+	batch := []model.QuestionEntity{}
+	filter := bson.D{{}}
+	err := collection.Find(context.TODO(), filter).Sort("-createDate").All(&batch)
+	return batch, len(batch), err
 }

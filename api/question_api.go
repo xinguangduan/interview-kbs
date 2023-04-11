@@ -1,43 +1,56 @@
 package api
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lightsoft/interview-knowledge-base/dao"
-	"github.com/lightsoft/interview-knowledge-base/model"
+	"github.com/lightsoft/interview-knowledge-base/global"
+	"github.com/lightsoft/interview-knowledge-base/service"
+	"github.com/lightsoft/interview-knowledge-base/service/dto"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func SearchQuestion(c *gin.Context) {
+const (
+	ERR_CODE_ADD_QUESTION       = 10011
+	ERR_CODE_GET_QUESTION_BY_ID = 10012
+	ERR_CODE_GET_QUESTION_LIST  = 10013
+	ERR_CODE_UPDATE_QUESTION    = 10014
+	ERR_CODE_DELETE_QUESTION    = 10015
+)
 
-	q := &model.QuestionEntity{
-		QuestionDesc: "how to do something",
-		AnswerDesc:   "you to do something",
-		CreateDate:   time.Now(),
-		CreateBy:     "zhangsan",
-		UpdateDate:   time.Now(),
-		UpdateBy:     "zhangsan",
-	}
-
-	c.AbortWithStatusJSON(http.StatusOK, q)
+type QuestionApi struct {
+	BaseApi
+	Service *service.QuestionService
 }
 
-func CreateBatchQuestion(c *gin.Context) {
-	var rawData = c.Request.Body
+func NewQuestionApi() QuestionApi {
+	return QuestionApi{
+		BaseApi: NewBaseApi(),
+		Service: service.NewQuestionService(),
+	}
+}
 
-	var postData []model.QuestionEntity
-
-	json.Marshal(rawData)
+func (m QuestionApi) CreateBatchQuestion(c *gin.Context) {
+	var postData []*dto.QuestionDTO
 
 	if err := c.ShouldBind(&postData); err != nil {
 		fmt.Println(err)
 		return
 	}
-	dao.Insert(context.TODO(), postData)
+	var newDataArray []*dto.QuestionDTO
+	for _, v := range postData {
+		v.Uid = primitive.NewObjectID().Hex()
+		// v.CreateDate = utils.GetNowDate()
+		// v.CreateDate = utils.GetNowDate()
+		v.CreateDate = time.Now()
+		v.UpdateDate = time.Now()
+		newDataArray = append(newDataArray, v)
+	}
+
+	// dao.InsertUser(context.TODO(), newDataArray)
+	err := m.Service.BatchAddQuestion(newDataArray)
 
 	// json := struct {
 	// 	Array []model.QuestionEntity
@@ -47,44 +60,154 @@ func CreateBatchQuestion(c *gin.Context) {
 	// 	fmt.Println(err)
 	// }
 	// fmt.Println(json)
-
-	c.AbortWithStatusJSON(http.StatusOK, `{"status":"ok"}`)
+	fmt.Println(err)
+	c.AbortWithStatusJSON(http.StatusOK, "ok")
 }
 
-func CreateOneQuestion(c *gin.Context) {
-	// dao.Insert(context.TODO())
-	var json model.QuestionEntity
-	err := c.BindJSON(&json)
-	if err != nil {
-		fmt.Println(err)
+// func (m QuestionApi) CreateOneQuestion(c *gin.Context) {
+
+// 	var json dto.QuestionDTO
+// 	err := c.BindJSON(&json)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	global.Logger.Info(json)
+// 	json.Uid = primitive.NewObjectID().Hex()
+// 	json.CreateDate = time.Now()
+// 	json.UpdateDate = time.Now()
+
+// 	//dao.InsertOne(context.TODO(), json)
+
+// 	m.Service.AddQuestion(&json)
+// 	c.AbortWithStatusJSON(http.StatusOK, "ok")
+// }
+
+func (m QuestionApi) AddQuestion(c *gin.Context) {
+	var questionDTO dto.QuestionDTO
+	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: &questionDTO}).GetError(); err != nil {
+		return
 	}
-	fmt.Println(json)
+	questionDTO.Uid = primitive.NewObjectID().Hex()
 
-	dao.InsertOne(context.TODO(), json)
+	err := m.Service.AddQuestion(&questionDTO)
 
-	c.AbortWithStatusJSON(http.StatusOK, `{"status":"ok"}`)
+	if err != nil {
+		m.ServerFail(ResponseMessage{
+			Code: ERR_CODE_ADD_QUESTION,
+			Msg:  err.Error(),
+		})
+		return
+	}
+
+	m.OK(ResponseMessage{
+		Data: questionDTO,
+		Msg:  "add successfully",
+	})
 }
 
-func CreateMultiple(c *gin.Context) {
-	//dao.InsertMany()
-}
-func UpdateQuestion(c *gin.Context) {
-	//dao.Insert(context.TODO())
+func (m QuestionApi) GetQuestionByUid(c *gin.Context) {
+	var commonDTO dto.CommonDTO
+	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: &commonDTO, BindUri: true}).GetError(); err != nil {
+		return
+	}
+
+	questionDTO, err := m.Service.GetQuestionByUid(&commonDTO)
+	if err != nil {
+		m.ServerFail(ResponseMessage{
+			Code: ERR_CODE_GET_QUESTION_BY_ID,
+			Msg:  err.Error(),
+		})
+
+		return
+	}
+
+	m.OK(ResponseMessage{
+		Data: questionDTO,
+		Msg:  "Get successfully",
+	})
 }
 
-func DeleteQuestion(c *gin.Context) {
-	id := c.Param("id")
-	fmt.Println("DeleteQuestion " + id)
-	dao.Update(context.TODO())
+func (m QuestionApi) GetQuestionList(c *gin.Context) {
+	var questionListDTO dto.QuestionListDTO
+	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: &questionListDTO}).GetError(); err != nil {
+		return
+	}
+
+	questionList, nTotal, err := m.Service.GetQuestionList(&questionListDTO)
+	global.Logger.Info("question list", questionList, nTotal, err)
+
+	if err != nil {
+		m.ServerFail(ResponseMessage{
+			Code: ERR_CODE_GET_QUESTION_LIST,
+			Msg:  err.Error(),
+		})
+		return
+	}
+
+	m.OK(ResponseMessage{
+		Data:  questionList,
+		Total: nTotal,
+	})
 }
 
-func RemoveAll(c *gin.Context) {
-	id := c.Param("id")
-	fmt.Println("DeleteQuestion " + id)
-	dao.DeleteAll(context.TODO())
+func (m QuestionApi) UpdateQuestion(c *gin.Context) {
+	var questionUpdateDTO dto.QuestionUpdateDTO
+	//strId := c.Param("id")
+	//fmt.Println("strId:" + strId)
+	//
+	//id, _ := strconv.Atoi(strId)
+	//uid := uint(id)
+	//questionUpdateDTO.ID = uid
+
+	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: &questionUpdateDTO, BindAll: true}).GetError(); err != nil {
+		return
+	}
+
+	err := m.Service.UpdateQuestion(&questionUpdateDTO)
+
+	if err != nil {
+		m.ServerFail(ResponseMessage{
+			Code: ERR_CODE_UPDATE_QUESTION,
+			Msg:  err.Error(),
+		})
+		return
+	}
+
+	m.OK(ResponseMessage{
+		Msg: "updated successfully",
+	})
 }
 
-func FindQuestion(c *gin.Context) {
-	res := dao.QueryQuestions(context.TODO())
-	c.AbortWithStatusJSON(http.StatusOK, res)
+func (m QuestionApi) DeleteUserByUid(c *gin.Context) {
+	var commonDTO dto.CommonDTO
+	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: &commonDTO, BindUri: true}).GetError(); err != nil {
+		return
+	}
+
+	err := m.Service.DeleteQuestionByUid(&commonDTO)
+	if err != nil {
+		m.ServerFail(ResponseMessage{
+			Code: ERR_CODE_DELETE_QUESTION,
+			Msg:  err.Error(),
+		})
+		return
+	}
+
+	m.OK(ResponseMessage{
+		Msg: "deleted successfully",
+	})
+}
+
+func (m QuestionApi) DeleteAll(c *gin.Context) {
+	err := m.Service.DeleteAllQuestion()
+	if err != nil {
+		m.ServerFail(ResponseMessage{
+			Code: ERR_CODE_DELETE_QUESTION,
+			Msg:  err.Error(),
+		})
+		return
+	}
+	m.OK(ResponseMessage{
+		Msg: "deleted successfully",
+	})
 }

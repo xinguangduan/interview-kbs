@@ -2,3 +2,13 @@ server:
   port: 7878
 db:
   path: mongodb://localhost:27017
+mode:
+  develop: true
+log:
+  MaxSize: 1 # 日志文件最大的尺寸(M), 超限后开始自动分割
+  MaxBackups: 10 # 保留旧文件的最大个数
+  MaxAge: 90 # 保留旧文件的最大天数
+redis:
+  url: localhost:6379
+jwt:
+  tokenExpire: 360
