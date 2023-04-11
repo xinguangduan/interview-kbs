@@ -6,6 +6,7 @@ import (
 
 	"github.com/lightsoft/interview-knowledge-base/global"
 	"github.com/lightsoft/interview-knowledge-base/model"
+	"github.com/qiniu/qmgo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -91,23 +92,30 @@ func (m *QuestionDao) Query(ctx context.Context) {
 
 func (m *QuestionDao) GetQuestionByUid(uid string) model.QuestionEntity {
 	var question model.QuestionEntity
-	DB.Collection(global.COLLECTION_QUESTION_INFO).Find(context.TODO(), nil).One(&question)
+	filter := bson.D{{Key: "uid", Value: uid}}
+	DB.Collection(global.COLLECTION_QUESTION_INFO).Find(context.TODO(), filter).One(&question)
 	return question
 }
 
 func CheckError(err error) {
-	panic("Get Error " + err.Error())
+	if err != nil {
+		global.Logger.Fatal("Got Error ", err.Error())
+	}
+
 }
 
-func (m *QuestionDao) DeleteQuestionByUid(uid string) {
-	filter := bson.D{{"uid", uid}}
+func (m *QuestionDao) DeleteQuestionByUid(uid string) error {
+	filter := bson.D{{Key: "uid", Value: uid}}
 	collection := DB.Collection(global.COLLECTION_QUESTION_INFO)
 	err := collection.Remove(context.TODO(), filter)
 	CheckError(err)
+	return err
 }
-func (m *QuestionDao) DeleteAll(ctx context.Context) {
+func (m *QuestionDao) DeleteAll(ctx context.Context) (result *qmgo.DeleteResult, err error) {
 	coll := DB.Collection(global.COLLECTION_QUESTION_INFO)
-	coll.RemoveAll(ctx, bson.D{{}})
+	res, err := coll.RemoveAll(ctx, bson.D{{}})
+	CheckError(err)
+	return res, err
 }
 
 func (m *QuestionDao) QueryQuestions(ctx context.Context) []model.QuestionEntity {

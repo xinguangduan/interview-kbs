@@ -7,24 +7,23 @@ import (
 
 func ConfigRouter(router *gin.Engine) {
 	questionApi := api.NewQuestionApi()
-	v1 := router.Group("/api/v1")
+	v1 := router.Group("/api/v1/questions")
 	{
-		v1.GET("/questions/all", questionApi.GetQuestionList)
-		v1.GET("/questions", questionApi.GetQuestionList)
-		v1.GET("/questions/:uid", questionApi.GetQuestionByUid)
-		v1.POST("/questions", questionApi.AddQuestion)
-		v1.POST("/questions/multi", questionApi.CreateBatchQuestion)
-		v1.PUT("/questions", questionApi.UpdateQuestion)
-		v1.DELETE("/questions/:uid", questionApi.DeleteUserByUid)
-		v1.DELETE("/questions/removeall", questionApi.DeleteAll)
+		v1.GET("", questionApi.GetQuestionList)
+		v1.GET("/:uid", questionApi.GetQuestionByUid)
+		v1.POST("", questionApi.AddQuestion)
+		v1.POST("/multi", questionApi.BatchAddQuestion)
+		v1.PUT("", questionApi.UpdateQuestion)
+		v1.DELETE("/:uid", questionApi.DeleteQuestionByUid)
+		v1.DELETE("/removeall", questionApi.DeleteAll)
 	}
 
-	v2 := router.Group("/api/v2")
+	v2 := router.Group("/api/v2/questions")
 	{
-		v2.GET("/questions", questionApi.GetQuestionList)
-		v2.GET("/questions/:uid", questionApi.GetQuestionByUid)
-		v2.POST("/questions", questionApi.AddQuestion)
-		v2.PUT("/questions", questionApi.UpdateQuestion)
-		v2.DELETE("/questions/:uid", questionApi.DeleteUserByUid)
+		v2.GET("", questionApi.GetQuestionList)
+		v2.GET("/:uid", questionApi.GetQuestionByUid)
+		v2.POST("", questionApi.AddQuestion)
+		v2.PUT("", questionApi.UpdateQuestion)
+		v2.DELETE("/:uid", questionApi.DeleteQuestionByUid)
 	}
 }

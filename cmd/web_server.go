@@ -53,7 +53,7 @@ func StartWebServer() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	fmt.Printf("start server, %v, %v, %v \n", srv.Addr, srv.ReadTimeout, srv.WriteTimeout)
+	fmt.Printf("server started, %v, %v, %v ,version v1.0 \n", srv.Addr, srv.ReadTimeout, srv.WriteTimeout)
 
 	go func() {
 		// 监听请求

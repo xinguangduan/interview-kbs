@@ -3,8 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -12,7 +10,6 @@ import (
 	"github.com/lightsoft/interview-knowledge-base/global"
 	"github.com/lightsoft/interview-knowledge-base/model"
 	"github.com/lightsoft/interview-knowledge-base/service/dto"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -33,9 +30,9 @@ func NewQuestionService() *QuestionService {
 	return questionService
 }
 
-func SetTokenToRedis(uid uint, token string) error {
-	return global.RedisClient.Set(strings.Replace(global.LOGIN_USER_TOKEN_REDIS_KEY, "{ID}", strconv.Itoa(int(uid)), -1), token, viper.GetDuration("jwt.tokenExpire")*time.Minute)
-}
+//	func SetTokenToRedis(uid uint, token string) error {
+//		return global.RedisClient.Set(strings.Replace(global.LOGIN_USER_TOKEN_REDIS_KEY, "{ID}", strconv.Itoa(int(uid)), -1), token, viper.GetDuration("jwt.tokenExpire")*time.Minute)
+//	}
 func (m *QuestionService) BatchAddQuestion(iQuestionDTOs []*dto.QuestionDTO) error {
 	var newDataArray []model.QuestionEntity
 	for _, v := range iQuestionDTOs {
@@ -45,6 +42,10 @@ func (m *QuestionService) BatchAddQuestion(iQuestionDTOs []*dto.QuestionDTO) err
 		// v.CreateDate = utils.GetNowDate()
 		v.CreateDate = time.Now()
 		v.UpdateDate = time.Now()
+		v.CreateBy = "zhangsan"
+		v.UpdateBy = "shangsang"
+		mongoTimestamp := bson.MongoTimestamp(time.Now().Unix())
+		v.LastUpdateTime = int64(mongoTimestamp)
 
 		v.ConvertToModel(&q)
 
@@ -91,10 +92,11 @@ func (m *QuestionService) UpdateQuestion(questionUpdateDTO *dto.QuestionUpdateDT
 }
 
 func (m *QuestionService) DeleteQuestionByUid(commonDTO *dto.CommonDTO) error {
-	m.Dao.DeleteQuestionByUid(commonDTO.Uid)
-	return nil
+	err := m.Dao.DeleteQuestionByUid(commonDTO.Uid)
+	return err
 }
 func (m *QuestionService) DeleteAllQuestion() error {
-	m.Dao.DeleteAll(context.TODO())
-	return nil
+	res, err := m.Dao.DeleteAll(context.TODO())
+	global.Logger.Info(res)
+	return err
 }

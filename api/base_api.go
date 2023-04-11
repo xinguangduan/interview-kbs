@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"reflect"
 
 	"github.com/gin-gonic/gin"
@@ -96,13 +97,41 @@ func (m *BaseApi) ParseValidateErrors(errs error, target any) error {
 }
 
 func (m *BaseApi) Fail(resp ResponseMessage) {
-	Fail(m.Ctx, resp)
+	HttpResponse(m.Ctx, buildStatus(resp, http.StatusBadRequest), resp)
 }
 
 func (m *BaseApi) OK(resp ResponseMessage) {
-	OK(m.Ctx, resp)
+	HttpResponse(m.Ctx, buildStatus(resp, http.StatusOK), resp)
 }
 
 func (m *BaseApi) ServerFail(resp ResponseMessage) {
-	ServerFail(m.Ctx, resp)
+	HttpResponse(m.Ctx, buildStatus(resp, http.StatusInternalServerError), resp)
+}
+
+type ResponseMessage struct {
+	Status int    `json:"-"`
+	Code   int    `json:"code,omitempty"`
+	Msg    string `json:"msg,omitempty"`
+	Data   any    `json:"data,omitempty"`
+	Total  int    `json:"total,omitempty"`
+}
+
+func (m ResponseMessage) IsEmpty() bool {
+	return reflect.DeepEqual(m, ResponseMessage{})
+}
+func HttpResponse(ctx *gin.Context, status int, resp ResponseMessage) {
+	if resp.IsEmpty() {
+		ctx.AbortWithStatus(status)
+		return
+	}
+
+	ctx.AbortWithStatusJSON(status, resp)
+}
+
+func buildStatus(resp ResponseMessage, nDefaultStatus int) int {
+	if 0 == resp.Status {
+		return nDefaultStatus
+	}
+
+	return resp.Status
 }

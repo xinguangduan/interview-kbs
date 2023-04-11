@@ -1,0 +1,403 @@
+{
+	"info": {
+		"_postman_id": "69fc7919-f9a7-4418-bed2-ea8fbdcb4bdf",
+		"name": "ikb",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "v1",
+			"item": [
+				{
+					"name": "ikb-questions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v1/questions/6434e3f888e85c0fc607f1f0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"6434e3f888e85c0fc607f1f0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ikb-questions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v1/questions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v1",
+								"questions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ikb-questions",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"uid\": \"642f8cd4e6623db4d0b7a1b2\",\n    \"language\": \"javascript\",\n    \"keyWord\": \"javascript\",\n    \"priority\": 0,\n    \"questionDesc\": \"how to reduce javascript memory  usage\",\n    \"answerDesc\": \"reduce javascript memory useage\",\n    \"updateBy\": \"eeeeeeee\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v1/questions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v1",
+								"questions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ikb-questions",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRFToken",
+								"value": "1234567889",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"language\": \"go\",\n    \"keyWord\": \"Mutex锁\",\n    \"questionDesc\": \"Golang中除了加Mutex锁以外还有哪些方式安全读写共享变量？\",\n    \"answerDesc\": \"Golang中Goroutine 可以通过 Channel 进行安全读写共享变量。\",\n    \"createBy\": \"duanxg\",\n    \"updateBy\": \"duanxg\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v1/questions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v1",
+								"questions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ikb-questions-multiple",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-CSRFToken",
+								"value": "1234567889",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"language\": \"c#\",\n        \"keyWord\": \"c#\",\n        \"questionDesc\": \"how to reduce memory usage\",\n        \"answerDesc\": \"reduce memory useage\",\n        \"createBy\": \"zhangsna\",\n        \"updateBy\": \"lisi\"\n    },\n    {\n        \"language\": \"go\",\n        \"keyWord\": \"go\",\n        \"questionDesc\": \"how to reduce memory usage\",\n        \"answerDesc\": \"reduce memory useage\",\n        \"createBy\": \"2ww11\",\n        \"updateBy\": \"\"\n    },\n    {\n        \"language\": \"javascript\",\n        \"keyWord\": \"javascript\",\n        \"questionDesc\": \"how to reduce javascript memory  usage\",\n        \"answerDesc\": \"reduce javascript memory useage\",\n        \"createBy\": \"wwwwwwww\",\n        \"updateBy\": \"eeeeeeee\"\n    }\n]"
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v1/questions/multiple",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"multiple"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ikb-questions",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v1/questions/643515ce6ec2aa336e5367fc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"643515ce6ec2aa336e5367fc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ikb-questions-all",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v1/questions/removeall",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"removeall"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "v2",
+			"item": [
+				{
+					"name": "ikb-questions-all",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "stcs",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "stcs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:7878/api/v2/questions/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7878",
+							"path": [
+								"api",
+								"v2",
+								"questions",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

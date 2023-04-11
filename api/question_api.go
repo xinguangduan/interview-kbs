@@ -1,10 +1,6 @@
 package api
 
 import (
-	"fmt"
-	"net/http"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/lightsoft/interview-knowledge-base/global"
 	"github.com/lightsoft/interview-knowledge-base/service"
@@ -30,38 +26,6 @@ func NewQuestionApi() QuestionApi {
 		BaseApi: NewBaseApi(),
 		Service: service.NewQuestionService(),
 	}
-}
-
-func (m QuestionApi) CreateBatchQuestion(c *gin.Context) {
-	var postData []*dto.QuestionDTO
-
-	if err := c.ShouldBind(&postData); err != nil {
-		fmt.Println(err)
-		return
-	}
-	var newDataArray []*dto.QuestionDTO
-	for _, v := range postData {
-		v.Uid = primitive.NewObjectID().Hex()
-		// v.CreateDate = utils.GetNowDate()
-		// v.CreateDate = utils.GetNowDate()
-		v.CreateDate = time.Now()
-		v.UpdateDate = time.Now()
-		newDataArray = append(newDataArray, v)
-	}
-
-	// dao.InsertUser(context.TODO(), newDataArray)
-	err := m.Service.BatchAddQuestion(newDataArray)
-
-	// json := struct {
-	// 	Array []model.QuestionEntity
-	// }{}
-	// err := c.Bind(&json)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println(json)
-	fmt.Println(err)
-	c.AbortWithStatusJSON(http.StatusOK, "ok")
 }
 
 // func (m QuestionApi) CreateOneQuestion(c *gin.Context) {
@@ -102,6 +66,35 @@ func (m QuestionApi) AddQuestion(c *gin.Context) {
 	m.OK(ResponseMessage{
 		Data: questionDTO,
 		Msg:  "add successfully",
+	})
+}
+
+func (m QuestionApi) BatchAddQuestion(c *gin.Context) {
+	var postData []*dto.QuestionDTO
+
+	if err := c.ShouldBind(&postData); err != nil {
+		global.Logger.Error(err)
+		return
+	}
+	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: nil}).GetError(); err != nil {
+		return
+	}
+
+	var newDataArray []*dto.QuestionDTO
+	for _, v := range postData {
+		v.Uid = primitive.NewObjectID().Hex()
+		// v.CreateDate = utils.GetNowDate()
+		// v.CreateDate = utils.GetNowDate()
+		newDataArray = append(newDataArray, v)
+	}
+
+	// dao.InsertUser(context.TODO(), newDataArray)
+	err := m.Service.BatchAddQuestion(newDataArray)
+
+	global.Logger.Info(err)
+
+	m.OK(ResponseMessage{
+		Msg: "Batch added  successfully",
 	})
 }
 
@@ -178,7 +171,7 @@ func (m QuestionApi) UpdateQuestion(c *gin.Context) {
 	})
 }
 
-func (m QuestionApi) DeleteUserByUid(c *gin.Context) {
+func (m QuestionApi) DeleteQuestionByUid(c *gin.Context) {
 	var commonDTO dto.CommonDTO
 	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: &commonDTO, BindUri: true}).GetError(); err != nil {
 		return
@@ -199,6 +192,9 @@ func (m QuestionApi) DeleteUserByUid(c *gin.Context) {
 }
 
 func (m QuestionApi) DeleteAll(c *gin.Context) {
+	if err := m.BuildRequest(BuildRequestOption{Ctx: c, DTO: nil}).GetError(); err != nil {
+		return
+	}
 	err := m.Service.DeleteAllQuestion()
 	if err != nil {
 		m.ServerFail(ResponseMessage{
@@ -208,6 +204,6 @@ func (m QuestionApi) DeleteAll(c *gin.Context) {
 		return
 	}
 	m.OK(ResponseMessage{
-		Msg: "deleted successfully",
+		Msg: "Deleted successfully",
 	})
 }
