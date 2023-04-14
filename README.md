@@ -1,2 +1,2 @@
-# interview-knowledge-base
+# interview-knowledge
 interview knowledge base
